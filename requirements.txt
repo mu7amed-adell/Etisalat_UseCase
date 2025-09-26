@@ -5,3 +5,11 @@ seaborn
 numpy
 xgboost
 imblearn
+langchain_core
+langchain_ollama 
+python-dotenv
+streamlit
+langchain_community
+langserve
+fastapi
+uvicorn
