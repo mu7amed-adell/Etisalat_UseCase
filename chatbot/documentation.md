@@ -1,77 +1,146 @@
 
-# Documentation: E& Marketing Team Churn Prediction Chatbot
+## 5. Deployment & Usage Guide
 
-**Project:** Customer Churn Prediction Assistant ("Gulia")  
-**Team:** Marketing  
-**Date:** September 27, 2025
+This section provides instructions on how to set up and run the Churn Prediction Assistant, along with a practical use case example.
 
----
+### A. Prerequisites
 
-## 1. Overview
+Before running the applications, ensure you have the following installed and configured:
 
-This document provides a comprehensive overview of the Customer Churn Prediction Chatbot, codenamed "Gulia." It details the business and technical motivations behind its development, its alignment with the marketing team's requirements, and the architecture that ensures its reliability and maintainability.
+1.  **Python 3.9+:** Download and install from [python.org](https://www.python.org/).
+2.  **Ollama:** Install Ollama from [ollama.com](https://ollama.com/) and ensure the server is running.
+3.  **Ollama Model:** Pull the required LLM model (e.g., `qwen3:4b` or `llama3.2:3b` or `llama3-groq-tool-use:8b`). Open your terminal and run:
+    ```bash
+    ollama pull llama3.2:3b
+    # OR
+    ollama pull qwen3:4b
+    ```
+4.  **Project Dependencies:** Navigate to the project root (`D:\Etisalat_UseCase\`) and install the required Python packages:
+    ```bash
+    pip install -r requirements.txt
+    # Ensure you also install LangChain specific dependencies if not in requirements.txt
+    pip install langchain langchain-community langchain-core pydantic uvicorn streamlit pandas joblib python-dotenv
+    ```
+5.  **Pre-trained ML Pipeline:** Ensure `churn_pipeline.pkl` is present in the `chatbot` directory.
 
-The solution provides two primary interfaces:
-1.  **A user-friendly web application** for interactive, conversational analysis.
-2.  **A robust API** for programmatic integration with other business systems.
+### B. Running the Applications
 
----
+#### 1. FastAPI Backend (`main.py`)
 
-## 2. Business & Technical Motivations
+The FastAPI application provides the API endpoints for both conversational and direct churn prediction.
 
-### A. Business Rationale: Why a Chatbot?
+-   **Navigate to the `chatbot` directory:**
+    ```bash
+    cd D:\Etisalat_UseCase\chatbot
+    ```
+-   **Start the FastAPI server:**
+    ```bash
+    uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ```
+    The API will be accessible at `http://localhost:8000`. You can view the interactive API documentation (Swagger UI) at `http://localhost:8000/docs`.
 
-The marketing team requires a tool to proactively identify customers at risk of churning. A traditional dashboard-based approach can be static and require significant training. A chatbot was chosen as the ideal solution for several key reasons:
+#### 2. Streamlit Frontend (`app.py`)
 
--   **Accessibility & Ease of Use:** A conversational interface is intuitive and requires minimal training. Marketing team members can simply "ask" the chatbot to predict churn, making the technology accessible to non-technical users.
--   **Guided Data Entry:** The chatbot, Gulia, guides the user through the data collection process step-by-step. This reduces errors, ensures all 19 required data points are collected, and makes the process feel less like filling out a form.
--   **Immediate & Actionable Insights:** Instead of just presenting a churn score, the chatbot provides a clear, concise prediction ("Will Churn" / "Will Not Churn") and a risk level ("High risk" / "Low risk"). This allows the team to take immediate, targeted action.
--   **Increased Efficiency:** By automating the prediction process, the chatbot frees up the marketing team's time to focus on developing and implementing retention strategies rather than on manual data analysis.
+The Streamlit application provides the interactive chat interface for Gulia.
 
-### B. Technical Architecture & Choices
+-   **Navigate to the `chatbot` directory:**
+    ```bash
+    cd D:\Etisalat_UseCase\chatbot
+    ```
+-   **Start the Streamlit application:**
+    ```bash
+    streamlit run app.py
+    ```
+    The Streamlit app will open in your web browser, typically at `http://localhost:8501`.
 
-The technical stack was carefully selected to deliver a robust, scalable, and maintainable solution that meets both immediate and future needs.
+### C. Use Case Example: Customer Churn Prediction
 
--   **Core Engine: Pre-trained ML Pipeline (`churn_pipeline.pkl`)**
-    -   **Simplification:** The solution leverages a pre-trained machine learning model saved as a `joblib` pipeline (`.pkl` file). This is a critical design choice that decouples the complex data science workflow (data cleaning, preprocessing, feature engineering, model training) from the application logic.
-    -   **Efficiency:** By using a pre-trained pipeline, the chatbot does not need to perform these computationally expensive tasks for every prediction. It simply passes the input data through the saved pipeline, resulting in near-instantaneous predictions.
-    -   **Consistency:** The pipeline ensures that the exact same preprocessing steps (e.g., encoding categorical variables, scaling numerical features) that were used during model training are applied during prediction, which is crucial for accuracy.
+Let's use the following customer data to demonstrate both interfaces:
 
--   **Language Model Integration: LangChain & Ollama**
-    -   **Conversational Intelligence:** The chatbot's natural language understanding is powered by a Large Language Model (LLM) running locally via **Ollama** (e.g., `llama3.2:3b`).
-    -   **Tool-Based Agency:** We use **LangChain** to create an "agent." This agent can use "tools." The `predict_customer_churn` function is exposed as a tool to the LLM.
-    -   **Workflow:** The LLM's primary role is to have a conversation, collect the 19 required pieces of customer data, and then call the prediction tool with that data. This creates a seamless and intelligent user experience.
+**Customer Profile:**
+"Female, not a senior citizen, married, has dependents, 12 months tenure.
+Services: Has phone service, no multiple lines, has online security, no online backup, has device protection, no tech support, has streaming TV, no streaming movies.
+Billing: Uses paperless billing, monthly charges $75.50, total charges $800.
+Service details: Fiber optic internet, Two year contract, Credit card automatic payment."
 
--   **Dual Interfaces: Streamlit & FastAPI**
-    -   **Streamlit (UI):** Provides an interactive, user-friendly web interface (`app.py`). This is perfect for direct use by the marketing team for one-off predictions or for demonstrating the capability to stakeholders. The interface includes a chat history, helpful guides, and quick-test buttons.
-    -   **FastAPI (API):** Provides a high-performance, scalable API for programmatic access (`main.py`). This is essential for integrating the churn prediction functionality into other systems, such as a CRM, automated marketing platforms, or batch processing workflows.
+#### 1. Using the Streamlit Chat Interface (`app.py`)
 
--   **Data Validation: Pydantic**
-    -   **Robustness:** Pydantic models (`CustomerData`, `ChatRequest`, etc.) are used in both the Streamlit and FastAPI applications.
-    -   **Functionality:** Pydantic enforces strict data validation, ensuring that the data passed to the machine learning pipeline is in the correct format (e.g., `int`, `float`, `str`). This prevents runtime errors and ensures the reliability of predictions. It also automatically generates documentation for the API endpoints.
+1.  Ensure both the FastAPI (`main.py`) and Streamlit (`app.py`) applications are running.
+2.  Open the Streamlit app in your browser (`http://localhost:8501`).
+3.  In the chat input box, type a message to Gulia, asking her to predict churn, and then provide the customer data. You can paste the entire customer profile above or provide it in parts as Gulia asks for information.
+    *Example Chat Input:*
+    ```
+    Hi Gulia, can you predict churn for a customer with the following details: Female, not a senior citizen, married, has dependents, 12 months tenure. Services: Has phone service, no multiple lines, has online security, no online backup, has device protection, no tech support, has streaming TV, no streaming movies. Billing: Uses paperless billing, monthly charges $75.50, total charges $800. Service details: Fiber optic internet, Two year contract, Credit card automatic payment.
+    ```
+4.  Gulia (the chatbot) will process the information, potentially ask clarifying questions if needed, and once all 19 data points are collected, she will call the underlying prediction tool. The result will be displayed directly in the chat interface.
 
----
+#### 2. Using the FastAPI Direct Prediction Endpoint (`/predict`)
 
-## 3. Alignment with Client Requirements
+This method is ideal for programmatic integration and bypasses the conversational flow.
 
-The chatbot solution is directly aligned with the E& marketing team's need for an accessible, reliable, and integrable churn prediction tool.
+1.  Ensure the FastAPI application (`main.py`) is running.
+2.  You can use `curl` from your terminal or any API client (like Postman, Insomnia, or a Python script) to send a POST request to 
+`http://localhost:8000/predict`.
 
-### A. Meeting Marketing Team Needs
+    **Request Body (JSON):**
+    ```json
+    {
+      "gender": 0,
+      "Senior_Citizen": 0,
+      "Is_Married": 1,
+      "Dependents": 1,
+      "tenure": 12.0,
+      "Phone_Service": 1,
+      "Dual": 0,
+      "Online_Security": 1,
+      "Online_Backup": 0,
+      "Device_Protection": 1,
+      "Tech_Support": 0,
+      "Streaming_TV": 1,
+      "Streaming_Movies": 0,
+      "Paperless_Billing": 1,
+      "Monthly_Charges": 75.50,
+      "Total_Charges": 800.0,
+      "Internet_Service": "Fiber optic",
+      "Contract": "Two year",
+      "Payment_Method": "Credit card (automatic)"
+    }
+    ```
 
--   **Intuitive Interaction:** The conversational UI allows any team member to get a churn prediction without needing to understand the underlying data science.
--   **Flexibility of Use:** The solution caters to different operational needs by providing both an interactive UI and a powerful API:
-    -   **UI (Streamlit):** Ideal for individual customer lookups, ad-hoc analysis, and presentations. A team member can quickly check the churn risk for a customer they are on the phone with.
-    -   **API (FastAPI):** Enables large-scale, automated churn analysis. For example, it can be used to run predictions on thousands of customers overnight and flag high-risk individuals in the company's CRM.
--   **Clear, Actionable Results:** The output is not a complex set of probabilities but a simple, direct answer to the team's question: "Is this customer going to leave?"
+    **Example `curl` command:**
+    ```bash
+    curl -X POST "http://localhost:8000/predict" \
+         -H "Content-Type: application/json" \
+         -d 
+    {
+               "gender": 0,
+               "Senior_Citizen": 0,
+               "Is_Married": 1,
+               "Dependents": 1,
+               "tenure": 12.0,
+               "Phone_Service": 1,
+               "Dual": 0,
+               "Online_Security": 1,
+               "Online_Backup": 0,
+               "Device_Protection": 1,
+               "Tech_Support": 0,
+               "Streaming_TV": 1,
+               "Streaming_Movies": 0,
+               "Paperless_Billing": 1,
+               "Monthly_Charges": 75.50,
+               "Total_Charges": 800.0,
+               "Internet_Service": "Fiber optic",
+               "Contract": "Two year",
+               "Payment_Method": "Credit card (automatic)"
+             }
+    ```
 
-### B. System Qualities
-
--   **Reliability:**
-    -   The use of Pydantic for data validation and a pre-trained, tested pipeline ensures that predictions are consistent and the system is robust against bad inputs.
-    -   The separation of concerns (UI, API, ML model) means that a failure in one component is less likely to affect the others.
--   **Maintainability:**
-    -   The code is well-structured and modular. The `churn_pipeline.pkl` can be updated independently by the data science team without requiring changes to the application code.
-    -   If a new or better churn model is developed, the only change required is to replace the `.pkl` file.
--   **Ease of Integration:**
-    -   The FastAPI provides an industry-standard REST API that is automatically documented (via OpenAPI/Swagger).
-    -   This makes it straightforward for developers to integrate the churn prediction service into any other application or workflow within E&'s technical ecosystem. The `/predict` endpoint allows for direct, high-throughput predictions, bypassing the conversational interface entirely for system-to-system communication.
+    **Expected Response (JSON):**
+    ```json
+    {
+      "prediction": "Will Not Churn",
+      "risk_level": "Low Risk",
+      "prediction_value": 0
+    }
+    ```
+    *(Note: The actual prediction result depends on the trained model in `churn_pipeline.pkl` and may vary.)*
