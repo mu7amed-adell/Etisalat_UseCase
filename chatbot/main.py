@@ -364,7 +364,7 @@ Service details: Fiber optic internet, Two year contract, Credit card automatic 
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main_mt3adell:app",  # Replace 'main' with your filename if different
+        "main:app",  # Replace 'main' with your filename if different
         host="0.0.0.0",
         port=8000,
         reload=True
