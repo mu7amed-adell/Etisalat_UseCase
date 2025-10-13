@@ -179,7 +179,7 @@ def predict_customer_churn(
 model = ChatOllama(
     model=os.getenv("OLLAMA_MODEL", "qwen3:4b"),
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    reasoning=False
+    reasoning=True
 )
 
 # Enhanced prompt for conversational data collection and churn prediction
